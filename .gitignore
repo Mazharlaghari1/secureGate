@@ -1,0 +1,24 @@
+# System / OS
+.DS_Store
+Thumbs.db
+
+# IDEs
+.vscode/
+.idea/
+
+# Backend patterns
+backend/__pycache__/
+backend/*.py[cod]
+backend/*.so
+backend/.venv/
+backend/.pytest_cache/
+backend/.env
+backend/scratch/
+backend/List[str]
+backend/type
+
+# Frontend patterns
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+frontend/*.log
