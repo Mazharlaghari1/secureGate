@@ -20,7 +20,8 @@ import {
   Trash2,
   Lock,
   ExternalLink,
-  ShieldCheck
+  ShieldCheck,
+  Search
 } from 'lucide-react';
 
 export default function EventDetails() {

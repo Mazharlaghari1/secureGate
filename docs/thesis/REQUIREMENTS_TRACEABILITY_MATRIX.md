@@ -1,0 +1,20 @@
+# SecureGate Requirements Traceability Matrix
+
+This matrix maps core functional and non-functional requirements to their technical implementations, codebase evidence, and respective chapters in the thesis.
+
+| Requirement ID | Requirement Description | Implementation Module | Codebase Evidence | Thesis Chapter |
+| :--- | :--- | :--- | :--- | :--- |
+| **REQ-01** | User Registration & Authentication | Authentication router and Bcrypt password hashing / JWT generation | [auth.py (Router)](file:///c:/Users/mazhar/Desktop/secureGate/backend/app/routers/auth.py), [auth.py (Service)](file:///c:/Users/mazhar/Desktop/secureGate/backend/app/services/auth.py) | Chapter 4 (Sections 4.3 & 4.5) |
+| **REQ-02** | Role-Based Access Control (RBAC) | Security decorators for Admin, Staff, and Attendee permissions | [auth.py (Security)](file:///c:/Users/mazhar/Desktop/secureGate/backend/app/security/auth.py) | Chapter 4 (Section 4.5) |
+| **REQ-03** | Event Lifecycle Management | Event schema validation and transition controls (Draft -> Active -> Completed / Cancelled) | [events.py (Router)](file:///c:/Users/mazhar/Desktop/secureGate/backend/app/routers/events.py), [events.py (Service)](file:///c:/Users/mazhar/Desktop/secureGate/backend/app/services/events.py) | Chapter 4 (Section 4.3) |
+| **REQ-04** | Participant Enrollment & Management | Participant registration, schema verification, and unique indexing | [participants.py (Router)](file:///c:/Users/mazhar/Desktop/secureGate/backend/app/routers/participants.py), [participants.py (Service)](file:///c:/Users/mazhar/Desktop/secureGate/backend/app/services/participants.py) | Chapter 4 (Section 4.3) |
+| **REQ-05** | Bulk Participant CSV Import | 2MB-capped multi-document transactional CSV parser and rollback | [participants.py (Service)](file:///c:/Users/mazhar/Desktop/secureGate/backend/app/services/participants.py#L225) | Chapter 4 (Section 4.3) |
+| **REQ-06** | Idempotent Ticket Generation | High-entropy secrets tokens and timezone-aware expiry calculations | [tickets.py (Service)](file:///c:/Users/mazhar/Desktop/secureGate/backend/app/services/tickets.py) | Chapter 4 (Section 4.3 & 4.6) |
+| **REQ-07** | Cryptographic Rotating QR Challenge | 60-second expiring JWT challenge token with unique jti nonce | [portal.py (Router)](file:///c:/Users/mazhar/Desktop/secureGate/backend/app/routers/portal.py#L705) | Chapter 4 (Sections 4.2 & 4.6) |
+| **REQ-08** | Real-time Camera QR Scanning | HTML5 QR Code webcam interface integration | [Scanner.jsx (Page)](file:///c:/Users/mazhar/Desktop/secureGate/frontend/src/pages/staff/Scanner.jsx) | Chapter 4 (Section 4.2) |
+| **REQ-09** | Double Check-in Prevention | Atomic MongoDB transactions for challenge consumption and ticket update | [attendance.py (Service)](file:///c:/Users/mazhar/Desktop/secureGate/backend/app/services/attendance.py#L11) | Chapter 4 (Sections 4.3 & 4.6) |
+| **REQ-10** | Security Audit Logs | Automatic sensitive parameter redaction and paginated logging | [audit.py (Service)](file:///c:/Users/mazhar/Desktop/secureGate/backend/app/services/audit.py) | Chapter 4 (Sections 4.3 & 4.7) |
+| **REQ-11** | Administrative Analytics | Database document counting and reporting services | [reports.py (Service)](file:///c:/Users/mazhar/Desktop/secureGate/backend/app/services/reports.py) | Chapter 4 (Section 4.3) & Chapter 5 (Section 5.1) |
+| **REQ-12** | CSV Check-in Export | HTTP Streaming CSV response generation | [reports.py (Router)](file:///c:/Users/mazhar/Desktop/secureGate/backend/app/routers/reports.py#L47) | Chapter 4 (Section 4.3) & Chapter 5 (Section 5.1) |
+| **REQ-13** | Database Integrity & Indexing | Startup database connection checks and index creation | [database.py (Manager)](file:///c:/Users/mazhar/Desktop/secureGate/backend/app/database.py) | Chapter 4 (Section 4.4) |
+| **REQ-14** | Error Redirection & Validation | Global FastAPI validation and HTTP exception middleware | [errors.py (Middleware)](file:///c:/Users/mazhar/Desktop/secureGate/backend/app/middleware/errors.py) | Chapter 4 (Section 4.3) |
