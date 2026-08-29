@@ -2,8 +2,8 @@ services:
   # Backend Web Service
   - type: web
     name: securegate-backend
-    env: python
-    rootDirectory: backend
+    runtime: python
+    rootDir: backend
     buildCommand: pip install -r requirements.txt
     startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
     healthCheckPath: /api/health
@@ -11,24 +11,25 @@ services:
       - key: ENVIRONMENT
         value: production
       - key: ACCESS_TOKEN_EXPIRE_MINUTES
-        value: 480
+        value: "480"
       - key: SECRET_KEY
         generateValue: true
       - key: MONGO_URI
-        placeholder: "mongodb+srv://user:pass@cluster.mongodb.net/event_access"
+        sync: false
       - key: MONGO_DB_NAME
         value: event_access
       - key: ALLOWED_ORIGINS
-        placeholder: '["https://securegate-frontend.onrender.com"]'
+        sync: false
       - key: FRONTEND_URL
-        placeholder: "https://securegate-frontend.onrender.com"
+        sync: false
 
   # Frontend Static Site
-  - type: static
+  - type: web
     name: securegate-frontend
-    rootDirectory: frontend
+    runtime: static
+    rootDir: frontend
     buildCommand: npm install && npm run build
-    publishDirectory: dist
+    publishPath: dist
     headers:
       - path: /*
         name: X-Frame-Options
@@ -43,4 +44,4 @@ services:
         destination: /index.html
     envVars:
       - key: VITE_API_BASE_URL
-        placeholder: "https://securegate-backend.onrender.com"
+        sync: false
