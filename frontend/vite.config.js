@@ -4,8 +4,9 @@ import react from '@vitejs/plugin-react'
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
+  base: process.env.BASE_PATH || '/',
   server: {
-    port: 5173,
+    port: process.env.PORT ? parseInt(process.env.PORT) : 5000,
     host: '0.0.0.0',
     proxy: {
       '/api': {
@@ -13,5 +14,8 @@ export default defineConfig({
         changeOrigin: true,
       }
     }
+  },
+  build: {
+    outDir: 'dist/public'
   }
 })
