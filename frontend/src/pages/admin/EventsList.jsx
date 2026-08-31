@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import {
   Calendar,
@@ -16,14 +16,17 @@ import {
   FileText,
   AlertTriangle,
   CheckCircle2,
-  Lock
+  Lock,
+  RefreshCw
 } from 'lucide-react';
 
 export default function EventsList() {
+  const navigate = useNavigate();
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [error, setError] = useState('');
+  const [submitting, setSubmitting] = useState(false);
 
   // Search & Filter state
   const [searchQuery, setSearchQuery] = useState('');
@@ -46,7 +49,7 @@ export default function EventsList() {
       const res = await api.get('/api/events?page_size=100');
       setEvents(res.data.data);
     } catch (err) {
-      console.error(err);
+      console.error('Failed to fetch events:', err);
     } finally {
       setLoading(false);
     }
@@ -62,23 +65,23 @@ export default function EventsList() {
     
     // Quick validation before submitting
     if (capacity <= 0) {
-      setError('capacity: Capacity must be greater than zero.');
+      setError('Capacity must be greater than zero.');
       return;
     }
 
+    setSubmitting(true);
     try {
-      await api.post('/api/events', {
-        name,
-        description: description || null,
-        venue,
+      const res = await api.post('/api/events', {
+        name: name.trim(),
+        description: description ? description.trim() : null,
+        venue: venue.trim(),
         date,
         start_time: startTime ? startTime.substring(0, 5) : '',
         end_time: endTime ? endTime.substring(0, 5) : '',
         capacity: Number(capacity),
-        timezone,
+        timezone: timezone.trim() || 'Asia/Karachi',
       });
       setShowModal(false);
-      fetchEvents();
       // Clear form
       setName('');
       setDescription('');
@@ -88,16 +91,27 @@ export default function EventsList() {
       setEndTime('');
       setCapacity(100);
       setTimezone('Asia/Karachi');
+
+      const createdId = res.data?.data?.id || res.data?.data?._id;
+      if (createdId) {
+        navigate(`/admin/events/${createdId}`);
+      } else {
+        fetchEvents();
+      }
     } catch (err) {
-      const errData = err.response?.data?.error;
+      const errData = err.response?.data?.error || err.response?.data?.detail;
       if (errData?.details) {
         const detailedMsg = Object.entries(errData.details)
           .map(([field, msg]) => `${field}: ${msg}`)
           .join(', ');
         setError(detailedMsg);
+      } else if (typeof errData === 'string') {
+        setError(errData);
       } else {
-        setError(errData?.message || 'Failed to create event.');
+        setError(errData?.message || (err.message === 'Network Error' ? 'Cannot reach server. Please check backend.' : 'Failed to create event. Please verify all fields.'));
       }
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -434,9 +448,11 @@ export default function EventsList() {
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-indigo-650 hover:bg-indigo-755 text-white rounded-lg text-xs font-bold transition-all shadow-sm cursor-pointer"
+                  disabled={submitting}
+                  className="px-5 py-2 bg-indigo-650 hover:bg-indigo-755 text-white rounded-lg text-xs font-bold transition-all shadow-sm cursor-pointer disabled:opacity-50 flex items-center space-x-2"
                 >
-                  Create Event
+                  {submitting && <RefreshCw className="h-3.5 w-3.5 animate-spin shrink-0" />}
+                  <span>{submitting ? 'Creating Event...' : 'Create Event'}</span>
                 </button>
               </div>
             </form>
