@@ -30,6 +30,29 @@ import logging
 setup_logging()
 logger = logging.getLogger("event_access")
 
+def init_default_admin():
+    try:
+        db = db_manager.get_db()
+        admin_email = getattr(settings, "INITIAL_ADMIN_EMAIL", "admin@securegate.com").strip().lower()
+        existing = db.users.find_one({"email": admin_email})
+        if not existing:
+            from datetime import datetime, timezone
+            from app.security.auth import hash_password
+            now = datetime.now(timezone.utc)
+            admin_doc = {
+                "name": "System Administrator",
+                "email": admin_email,
+                "password_hash": hash_password(getattr(settings, "INITIAL_ADMIN_PASSWORD", "Admin12345!")),
+                "role": "admin",
+                "is_active": True,
+                "created_at": now,
+                "updated_at": now
+            }
+            db.users.insert_one(admin_doc)
+            logger.info(f"Bootstrap: Initial administrator account verified/created ({admin_email})")
+    except Exception as e:
+        logger.warning(f"Bootstrap administrator initialization skipped: {str(e)}")
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("Initializing application resources during lifespan startup...")
@@ -39,6 +62,8 @@ async def lifespan(app: FastAPI):
         db_manager.connect()
         # Initialize indexes
         db_manager.init_indexes()
+        # Ensure default administrator exists
+        init_default_admin()
         logger.info("Lifespan startup verification complete.")
     except Exception as e:
         logger.critical(f"Failed to complete startup checks: {str(e)}")
@@ -66,6 +91,7 @@ if isinstance(origins, str):
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
+    allow_origin_regex=r"^https?://([a-zA-Z0-9-]+\.)*(repl\.co|replit\.dev|replit\.app|onrender\.com|localhost|127\.0\.0\.1)(:\d+)?$",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

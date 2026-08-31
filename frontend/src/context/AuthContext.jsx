@@ -28,7 +28,8 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      const res = await api.post('/api/auth/login', { email, password });
+      const cleanEmail = (email || '').trim().toLowerCase();
+      const res = await api.post('/api/auth/login', { email: cleanEmail, password });
       // The API returns structure: { success: true, data: { token: "JWT", user: { name, email, role } } }
       const { token: jwtToken, user: userData } = res.data.data;
       setTokenState(jwtToken);
@@ -38,9 +39,17 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('user', JSON.stringify(userData));
       return { success: true, user: userData };
     } catch (err) {
+      const errorMsg = 
+        err.response?.data?.error?.message || 
+        err.response?.data?.detail?.message ||
+        err.response?.data?.detail ||
+        (err.message === 'Network Error' 
+          ? 'Cannot reach authentication server. Please check your backend connection or CORS.' 
+          : 'Invalid email or password. Please try again.');
+
       return {
         success: false,
-        error: err.response?.data?.error?.message || 'Login failed.'
+        error: typeof errorMsg === 'string' ? errorMsg : 'Invalid email or password.'
       };
     }
   };

@@ -22,6 +22,9 @@ def authenticate_user(db: Database, email: str, password: str) -> dict:
 
     user = db.users.find_one({"email": email_normalized})
     if not user:
+        import re
+        user = db.users.find_one({"email": {"$regex": f"^{re.escape(email_normalized)}$", "$options": "i"}})
+    if not user:
         # Audit login failure without revealing that user doesn't exist
         log_audit(
             db=db,

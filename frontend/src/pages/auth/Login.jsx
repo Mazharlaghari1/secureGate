@@ -41,6 +41,8 @@ export default function Login() {
     if (result.success) {
       if (result.user.role === 'admin') {
         navigate('/admin/dashboard');
+      } else if (result.user.role === 'attendee') {
+        navigate('/portal');
       } else {
         navigate('/staff/scanner');
       }
@@ -138,7 +140,7 @@ export default function Login() {
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   className="w-full pl-10 pr-4 py-2 bg-slate-950 border border-slate-800 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-xl text-sm focus:outline-none transition-all placeholder-slate-500 text-slate-100"
-                  placeholder="staff@securegate.com"
+                  placeholder="admin@securegate.com or user@example.com"
                 />
               </div>
             </div>
